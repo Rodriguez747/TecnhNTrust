@@ -1,0 +1,136 @@
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #dce6ef;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .container {
+      display: flex;
+      background-color: #dce6ef;
+      width: 100%;
+      max-width: 1000px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .left-side {
+        display: flex;
+        flex-direction: column;
+        padding-left: 20px;
+        text-align: center;
+        margin-left:-15%;
+    }
+
+    .left-side h1 {
+      font-size: 50px;
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 10px;
+    }
+
+    .left-side p {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .login-card {
+      max-width: 400px;
+      background-color: #eaf0f5;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .login-header {
+      background-color: #48657c;
+      padding: 30px;
+      text-align: center;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      display: flex;
+    }
+    .login-header h1{
+        color: #00459b;
+        font-size: 20px;
+        text-align: center;
+        margin-top: 6.8%;
+    }
+
+    .login-header img {
+      height: 60px;
+      margin-left: 15%;
+    }
+
+    .login-body {
+      padding: 30px;
+    }
+
+    .login-body label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #222;
+    }
+
+    .login-body input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #666;
+      border-radius: 3px;
+      font-size: 1rem;
+    }
+
+    .login-body button {
+      width: 100%;
+      background-color: #1865d8;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .login-body .forgot {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .login-body .forgot a {
+      font-size: 0.8rem;
+      color: #3c7b57;
+      text-decoration: none;
+    }
+
+    .login-body .forgot a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .left-side {
+        padding: 0;
+      }
+
+      .login-card {
+        width: 100%;
+      }
+    }
