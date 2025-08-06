@@ -35,13 +35,13 @@
     .left-side h1 {
       font-size: 50px;
       font-weight: 700;
-      color: #000;
+      color: #333135;
       margin-bottom: 10px;
     }
 
     .left-side p {
       font-size: 1.2rem;
-      color: #333;
+      color: #333135;
     }
 
     .login-card {
@@ -58,7 +58,23 @@
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
       display: flex;
+      flex-direction: column;
+      
     }
+
+    .top{
+      display: flex;
+      margin-left: 1em;
+    }
+
+    .p p{
+      color: #333135;
+      font-weight: 100;
+      opacity: 90%;
+    }
+
+    
+
     .login-header h1{
         color: #B87AF1;
         font-size: 20px;
@@ -88,13 +104,17 @@
       padding: 10px;
       margin-bottom: 20px;
       border: 1px solid #666;
-      border-radius: px;
+      border-radius: 4px;
       font-size: 1rem;
+    }
+
+    .login-body input:focus{
+      outline-color: #3178fbb6
     }
 
     .login-body button {
       width: 100%;
-      background-color: #1865d8;
+      background-color: #3e7ef7;
       color: white;
       padding: 10px;
       border: none;
@@ -133,3 +153,24 @@
         width: 100%;
       }
     }
+
+    #result {
+    font-size: 14px;
+    color: rgb(169, 16, 16);
+    padding: 10px;
+    border-radius: 5px;
+ 
+    }
+
+    @keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Add shake animation on invalid input */
+.shake {
+  animation: shake 0.3s ease forwards;
+}
