@@ -2,83 +2,10 @@
 	const tableBody = document.getElementById('risksTableBody');
 	const modalRoot = document.getElementById('modalRoot');
 	const newBtn = document.querySelector('.new-btn');
-
-	// Seed data if none
-	const DEFAULT_RISKS = [
-		{
-			id: cryptoRandomId(),
-			risk_title: 'Budget Overrun',
-			dept: 'Finance',
-			review_date: new Date().toISOString().slice(0, 10),
-			progress: 68,
-			status: 'on track',
-			tasks: defaultTasks('Budget Overrun')
-		},
-		{
-			id: cryptoRandomId(),
-			risk_title: 'Data Breach',
-			dept: 'IT',
-			review_date: new Date().toISOString().slice(0, 10),
-			progress: 25,
-			status: 'At risk',
-			tasks: defaultTasks('Data Breach')
-		}
-	];
+	const API_BASE = 'http://localhost:3000';
 
 	function cryptoRandomId() {
 		return 'r_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
-	}
-
-	function getStore() {
-		try {
-			const raw = localStorage.getItem('ct_risks');
-			if (!raw) return DEFAULT_RISKS;
-			const parsed = JSON.parse(raw);
-			if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_RISKS;
-			return parsed;
-		} catch (e) {
-			return DEFAULT_RISKS;
-		}
-	}
-	function saveStore(risks) {
-		localStorage.setItem('ct_risks', JSON.stringify(risks));
-	}
-
-	function defaultTasks(riskName) {
-		// Provide a sensible set of weighted tasks; weight is the percentage contributed when checked
-		// We use weights that sum to 100.
-		if (/breach/i.test(riskName)) {
-			return [
-				{ id: cryptoRandomId(), label: 'Enable MFA for all privileged accounts', weight: 20, done: false },
-				{ id: cryptoRandomId(), label: 'Patch critical systems', weight: 20, done: false },
-				{ id: cryptoRandomId(), label: 'Encrypt sensitive data at rest', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Implement IDS/IPS monitoring', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Employee security awareness training', weight: 10, done: false },
-				{ id: cryptoRandomId(), label: 'Backup and disaster recovery test', weight: 20, done: false }
-			];
-		}
-		if (/budget|overrun/i.test(riskName)) {
-			return [
-				{ id: cryptoRandomId(), label: 'Baseline current spend', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Negotiate vendor discounts', weight: 20, done: false },
-				{ id: cryptoRandomId(), label: 'Freeze nonessential purchases', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Weekly cost variance review', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Automate spend alerts', weight: 15, done: false },
-				{ id: cryptoRandomId(), label: 'Reforecast budget with stakeholders', weight: 20, done: false }
-			];
-		}
-		return [
-			{ id: cryptoRandomId(), label: 'Define mitigation plan', weight: 20, done: false },
-			{ id: cryptoRandomId(), label: 'Assign owner(s)', weight: 10, done: false },
-			{ id: cryptoRandomId(), label: 'Identify key milestones', weight: 15, done: false },
-			{ id: cryptoRandomId(), label: 'Execute main mitigation tasks', weight: 35, done: false },
-			{ id: cryptoRandomId(), label: 'Validate outcomes', weight: 10, done: false },
-			{ id: cryptoRandomId(), label: 'Close-out and document', weight: 10, done: false }
-		];
-	}
-
-	function computeProgress(tasks) {
-		return Math.round(tasks.reduce((acc, t) => acc + (t.done ? t.weight : 0), 0));
 	}
 
 	function computeStatus(progress) {
@@ -87,8 +14,50 @@
 		return 'on track';
 	}
 
-	function render() {
-		const risks = getStore();
+	async function apiGetRisks() {
+		const res = await fetch(`${API_BASE}/api/risks`);
+		if (!res.ok) throw new Error('Failed to load risks');
+		return await res.json();
+	}
+	async function apiGetRisk(id) {
+		const res = await fetch(`${API_BASE}/api/risks/${id}`);
+		if (!res.ok) throw new Error('Failed to load risk');
+		return await res.json();
+	}
+	async function apiCreateRisk(payload) {
+		const res = await fetch(`${API_BASE}/api/risks`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload)
+		});
+		if (!res.ok) throw new Error('Failed to create risk');
+		return await res.json();
+	}
+	async function apiUpdateRiskTasks(id, tasks) {
+		const res = await fetch(`${API_BASE}/api/risks/${id}/tasks`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ tasks })
+		});
+		if (!res.ok) throw new Error('Failed to update tasks');
+		return await res.json();
+	}
+
+	function renderFillClass(status) {
+		const s = String(status || '').toLowerCase();
+		if (s === 'at risk') return 'fill-red';
+		if (s === 'ahead') return 'fill-purple';
+		return 'fill-green';
+	}
+	function statusBadgeClass(status) {
+		const s = String(status || '').toLowerCase();
+		if (s === 'at risk') return 'status-atrisk';
+		if (s === 'ahead') return 'status-ahead';
+		return 'status-ontrack';
+	}
+
+	async function render() {
+		const risks = await apiGetRisks();
 		tableBody.innerHTML = '';
 		risks.forEach(risk => {
 			const tr = document.createElement('tr');
@@ -113,14 +82,14 @@
 			progressTd.innerHTML = `
 				<div class="progress-bar">
 					<div class="progress-bar-inner">
-						<div class="progress-fill ${progressFillClass(risk)}" style="width:${risk.progress}%"></div>
+						<div class="progress-fill ${renderFillClass(risk.status)}" style="width:${risk.progress || 0}%"></div>
 					</div>
-					<div class="percent">${risk.progress}%</div>
+					<div class="percent">${risk.progress || 0}%</div>
 				</div>
 			`;
 
 			const statusTd = document.createElement('td');
-			statusTd.innerHTML = `<span class="status-badge ${statusBadgeClass(risk.status)}">${risk.status}</span>`;
+			statusTd.innerHTML = `<span class="status-badge ${statusBadgeClass(risk.status)}">${risk.status || computeStatus(risk.progress || 0)}</span>`;
 
 			const actionTd = document.createElement('td');
 			const editBtn = document.createElement('button');
@@ -139,59 +108,30 @@
 		});
 	}
 
-	function statusBadgeClass(status) {
-		const s = String(status || '').toLowerCase();
-		if (s === 'at risk') return 'status-atrisk';
-		if (s === 'ahead') return 'status-ahead';
-		return 'status-ontrack';
-	}
-	function progressFillClass(risk) {
-		const s = String(risk.status || '').toLowerCase();
-		if (s === 'at risk') return 'fill-red';
-		if (s === 'ahead') return 'fill-purple';
-		return 'fill-green';
-	}
-
 	function openNewModal() {
 		openModal('New Risk', buildRiskForm(), ({ close, getValues }) => {
 			return [
 				{ text: 'Cancel', variant: 'secondary', onClick: () => close() },
-				{ text: 'Save', variant: 'primary', onClick: () => {
+				{ text: 'Save', variant: 'primary', onClick: async () => {
 					const values = getValues();
-					const risks = getStore();
-					const newRisk = {
-						id: cryptoRandomId(),
-						risk_title: values.title,
-						dept: values.dept,
-						review_date: values.dueDate,
-						tasks: values.tasks,
-						progress: computeProgress(values.tasks),
-						status: computeStatus(computeProgress(values.tasks))
-					};
-					risks.unshift(newRisk);
-					saveStore(risks);
-					render();
+					const tasks = values.tasks.map(t => ({ label: t.label, weight: t.weight, done: false }));
+					await apiCreateRisk({ risk_title: values.title, dept: values.dept, review_date: values.dueDate, tasks });
+					await render();
 					close();
 				} }
 			];
 		});
 	}
 
-	function openEditModal(riskId) {
-		const risks = getStore();
-		const risk = risks.find(r => r.id === riskId);
-		if (!risk) return;
+	async function openEditModal(riskId) {
+		const risk = await apiGetRisk(riskId);
 		openModal('Edit Risk Progress', buildTaskChecklist(risk), ({ close, getTaskValues }) => {
 			return [
 				{ text: 'Close', variant: 'secondary', onClick: () => close() },
-				{ text: 'Save Changes', variant: 'primary', onClick: () => {
-					const updatedTasks = getTaskValues();
-					const progress = computeProgress(updatedTasks);
-					risk.tasks = updatedTasks;
-					risk.progress = progress;
-					risk.status = computeStatus(progress);
-					saveStore(risks);
-					render();
+				{ text: 'Save Changes', variant: 'primary', onClick: async () => {
+					const updates = getTaskValues(); // [{id, done}]
+					await apiUpdateRiskTasks(riskId, updates);
+					await render();
 					close();
 				} }
 			];
@@ -240,13 +180,12 @@
 		function close() {
 			modalRoot.removeChild(overlay);
 		}
-		function getValues() { /* for create form */ return currentFormValues; }
+		function getValues() { return currentFormValues; }
 		function getTaskValues() { return currentTaskValues(); }
 
 		let currentFormValues = null;
 		let currentTaskValues = () => [];
 
-		// Expose setters from builders
 		if (bodyEl && bodyEl.__bindValues__) {
 			const { setValuesGetter } = bodyEl.__bindValues__;
 			setValuesGetter(v => { currentFormValues = v; });
@@ -314,7 +253,7 @@
 
 		const tasksList = document.createElement('div');
 		tasksList.className = 'tasks-list';
-		risk.tasks.forEach(t => {
+		(risk.tasks || []).forEach(t => {
 			const el = taskCheckboxRow(t);
 			tasksList.appendChild(el);
 		});
@@ -323,7 +262,7 @@
 		const progressPreview = document.createElement('div');
 		progressPreview.style.marginTop = '8px';
 		progressPreview.style.fontWeight = '700';
-		progressPreview.textContent = `Progress: ${computeProgress(risk.tasks)}%`;
+		progressPreview.textContent = `Progress: ${risk.progress || 0}%`;
 		container.appendChild(progressPreview);
 
 		container.__bindTaskGetter__ = {
@@ -378,6 +317,7 @@
 	function taskCheckboxRow(task) {
 		const item = document.createElement('div');
 		item.className = 'task-item';
+		item.dataset.id = String(task.id);
 		const left = document.createElement('label');
 		left.style.display = 'flex';
 		left.style.alignItems = 'center';
@@ -385,6 +325,7 @@
 		const checkbox = document.createElement('input');
 		checkbox.type = 'checkbox';
 		checkbox.checked = !!task.done;
+		checkbox.addEventListener('change', () => {/* live preview handled on save */});
 		const span = document.createElement('span');
 		span.textContent = task.label;
 		left.appendChild(checkbox);
@@ -406,11 +347,9 @@
 			const weight = clamp(parseInt(weightInput && weightInput.value || '0', 10) || 0, 0, 100);
 			tasks.push({ id: cryptoRandomId(), label, weight, done: false });
 		});
-		// Normalize weights to sum to 100 if they don't already
 		const sum = tasks.reduce((s, t) => s + t.weight, 0);
 		if (sum !== 100 && sum > 0) {
 			tasks.forEach(t => { t.weight = Math.round((t.weight / sum) * 100); });
-			// Fix rounding drift
 			let diff = 100 - tasks.reduce((s, t) => s + t.weight, 0);
 			for (let i = 0; i < Math.abs(diff); i++) tasks[i % tasks.length].weight += Math.sign(diff);
 		}
@@ -422,20 +361,53 @@
 		Array.from(tasksList.children).forEach(child => {
 			if (!child.classList.contains('task-item')) return;
 			const checkbox = child.querySelector('input[type="checkbox"]');
-			const label = child.querySelector('span:nth-child(2)')?.textContent || 'Task';
 			const weightText = child.querySelector('.weight')?.textContent || '+0%';
 			const weight = parseInt(weightText.replace(/[^0-9]/g, ''), 10) || 0;
-			tasks.push({ id: cryptoRandomId(), label, weight, done: !!(checkbox && checkbox.checked) });
+			const id = child.dataset.id;
+			tasks.push({ id: Number(id), done: !!(checkbox && checkbox.checked), weight });
 		});
-		if (previewEl) previewEl.textContent = `Progress: ${computeProgress(tasks)}%`;
-		return tasks;
+		if (previewEl) {
+			const progress = Math.round(tasks.reduce((sum, t) => sum + (t.done ? t.weight : 0), 0));
+			previewEl.textContent = `Progress: ${progress}%`;
+		}
+		return tasks.map(({ id, done }) => ({ id, done }));
 	}
 
 	function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
-	// Wire up new button
 	if (newBtn) newBtn.addEventListener('click', openNewModal);
 
-	// Initial render
 	render();
+
+	// Task seeds
+	function defaultTasks(riskName) {
+		if (/breach/i.test(riskName)) {
+			return [
+				{ id: cryptoRandomId(), label: 'Enable MFA for all privileged accounts', weight: 20, done: false },
+				{ id: cryptoRandomId(), label: 'Patch critical systems', weight: 20, done: false },
+				{ id: cryptoRandomId(), label: 'Encrypt sensitive data at rest', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Implement IDS/IPS monitoring', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Employee security awareness training', weight: 10, done: false },
+				{ id: cryptoRandomId(), label: 'Backup and disaster recovery test', weight: 20, done: false }
+			];
+		}
+		if (/budget|overrun/i.test(riskName)) {
+			return [
+				{ id: cryptoRandomId(), label: 'Baseline current spend', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Negotiate vendor discounts', weight: 20, done: false },
+				{ id: cryptoRandomId(), label: 'Freeze nonessential purchases', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Weekly cost variance review', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Automate spend alerts', weight: 15, done: false },
+				{ id: cryptoRandomId(), label: 'Reforecast budget with stakeholders', weight: 20, done: false }
+			];
+		}
+		return [
+			{ id: cryptoRandomId(), label: 'Define mitigation plan', weight: 20, done: false },
+			{ id: cryptoRandomId(), label: 'Assign owner(s)', weight: 10, done: false },
+			{ id: cryptoRandomId(), label: 'Identify key milestones', weight: 15, done: false },
+			{ id: cryptoRandomId(), label: 'Execute main mitigation tasks', weight: 35, done: false },
+			{ id: cryptoRandomId(), label: 'Validate outcomes', weight: 10, done: false },
+			{ id: cryptoRandomId(), label: 'Close-out and document', weight: 10, done: false }
+		];
+	}
 })();
