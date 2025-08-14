@@ -255,7 +255,8 @@
 
 		const tasksList = document.createElement('div');
 		tasksList.className = 'tasks-list';
-		(risk.tasks || []).forEach(t => {
+		const sourceTasks = (risk.tasks && risk.tasks.length ? risk.tasks : defaultTasks(risk.risk_title).map(t => ({ ...t })));
+		sourceTasks.forEach(t => {
 			const el = taskCheckboxRow(t);
 			tasksList.appendChild(el);
 		});
@@ -366,13 +367,13 @@
 			const weightText = child.querySelector('.weight')?.textContent || '+0%';
 			const weight = parseInt(weightText.replace(/[^0-9]/g, ''), 10) || 0;
 			const id = child.dataset.id;
-			tasks.push({ id: Number(id), done: !!(checkbox && checkbox.checked), weight });
+			tasks.push({ id, done: !!(checkbox && checkbox.checked), weight });
 		});
 		if (previewEl) {
 			const progress = Math.round(tasks.reduce((sum, t) => sum + (t.done ? t.weight : 0), 0));
 			previewEl.textContent = `Progress: ${progress}%`;
 		}
-		return tasks.map(({ id, done }) => ({ id, done }));
+		return tasks;
 	}
 
 	function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
