@@ -58,101 +58,14 @@
           <th></th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td class="risk-name">Product Contamination</td>
-          <td><span class="user-icon red" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-green" style="width:68%"></div>
-              </div>
-              <div class="percent">68%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-ontrack">on track</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-        <tr>
-          <td class="risk-name">Regulatory Labeling Non-Compliance</td>
-          <td><span class="user-icon green" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-red" style="width:83%"></div>
-              </div>
-              <div class="percent">83%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-atrisk">At risk</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-        <tr>
-          <td class="risk-name">Expired Raw Materials</td>
-          <td><span class="user-icon purple" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-green" style="width:48%"></div>
-              </div>
-              <div class="percent">48%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-ontrack">on track</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-        <tr>
-          <td class="risk-name">Ingredient Shortage</td>
-          <td><span class="user-icon cyan" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-purple" style="width:12%"></div>
-              </div>
-              <div class="percent">12%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-ahead">Ahead</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-        <tr>
-          <td class="risk-name">Customer Safety</td>
-          <td><span class="user-icon yellow" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-green" style="width:51%"></div>
-              </div>
-              <div class="percent">51%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-ontrack">on track</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-        <tr>
-          <td class="risk-name">Environmental Impact</td>
-          <td><span class="user-icon brown" title="Assigned User"></span></td>
-          <td class="due-date">July 09, 2025</td>
-          <td>
-            <div class="progress-bar">
-              <div class="progress-bar-inner">
-                <div class="progress-fill fill-green" style="width:51%"></div>
-              </div>
-              <div class="percent">51%</div>
-            </div>
-          </td>
-          <td><span class="status-badge status-ontrack">on track</span></td>
-          <td><button class="btn-edit">Edit</button></td>
-        </tr>
-      </tbody>
+      <tbody id="risksTableBody"></tbody>
     </table>
   </div>
-</div>
+  <!-- Modal root -->
+  <div id="modalRoot"></div>
 
+  <script src="findings.js"></script>
+</div>
+ 
 </body>
 </html>

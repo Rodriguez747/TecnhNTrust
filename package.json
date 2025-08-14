@@ -1,0 +1,19 @@
+{
+	"name": "complyteam-risk-server",
+	"version": "1.0.0",
+	"private": true,
+	"type": "commonjs",
+	"main": "server/index.js",
+	"scripts": {
+		"start": "node server/index.js",
+		"dev": "nodemon server/index.js"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"express": "^4.19.2",
+		"pg": "^8.11.5"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.3"
+	}
+}
