@@ -2,7 +2,7 @@
 	const tableBody = document.getElementById('risksTableBody');
 	const modalRoot = document.getElementById('modalRoot');
 	const newBtn = document.querySelector('.new-btn');
-	const API_BASE = 'http://localhost:3000';
+	const API_BASE = '';
 
 	function cryptoRandomId() {
 		return 'r_' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
@@ -15,17 +15,17 @@
 	}
 
 	async function apiGetRisks() {
-		const res = await fetch(`${API_BASE}/api/risks`);
+		const res = await fetch(`${API_BASE}/risks`);
 		if (!res.ok) throw new Error('Failed to load risks');
 		return await res.json();
 	}
 	async function apiGetRisk(id) {
-		const res = await fetch(`${API_BASE}/api/risks/${id}`);
+		const res = await fetch(`${API_BASE}/risks/${id}`);
 		if (!res.ok) throw new Error('Failed to load risk');
 		return await res.json();
 	}
 	async function apiCreateRisk(payload) {
-		const res = await fetch(`${API_BASE}/api/risks`, {
+		const res = await fetch(`${API_BASE}/risks`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload)
@@ -34,10 +34,12 @@
 		return await res.json();
 	}
 	async function apiUpdateRiskTasks(id, tasks) {
-		const res = await fetch(`${API_BASE}/api/risks/${id}/tasks`, {
+		// When editing, compute progress client-side and send to server via PUT /risks/:id
+		const progress = Math.round(tasks.reduce((s, t) => s + (t.done ? (t.weight || 0) : 0), 0));
+		const res = await fetch(`${API_BASE}/risks/${id}`, {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ tasks })
+			body: JSON.stringify({ progress })
 		});
 		if (!res.ok) throw new Error('Failed to update tasks');
 		return await res.json();
